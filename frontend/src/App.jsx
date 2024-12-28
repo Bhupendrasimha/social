@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+/**
+ * App Component
+ * 
+ * The root component of the application that sets up routing and Redux store.
+ * Handles authentication flow and protected routes.
+ */
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import Login from './views/login';
+import Register from './views/register';
+import PostList from './views/post';
+import ProtectedRoute from './protectedRoute';
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+/**
+ * Main App component that wraps the entire application
+ * Sets up Redux Provider and React Router
+ * Defines all available routes and their components
+ * @returns {JSX.Element} The main application component
+ */
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Provider store={store}>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-export default App
+          {/* Protected routes that require authentication */}
+          <Route
+            path="/posts"
+            element={
+              <ProtectedRoute>
+                <PostList />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Navigate to="/posts" replace />
+          </ProtectedRoute>
+        }
+      />
+    {/* <Route path="*" element={<NotFound />} /> */}
+        </Routes>
+      </Router>
+    </Provider>
+  );
+};
+
+export default App;
