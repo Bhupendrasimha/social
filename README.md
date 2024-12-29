@@ -2,6 +2,7 @@
 ### A full-stack social media application built with React, Redux, Node.js, and MongoDB.
 
 - Project Structure
+```sh
 ├── backend/
 │   ├── src/
 │   │   ├── config/
@@ -24,7 +25,7 @@
 │   │   ├── views/
 │   │   └── App.jsx
 │   └── package.json
-
+```
 
 ## TECH Stack
 ### Frontend
