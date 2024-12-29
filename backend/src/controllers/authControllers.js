@@ -1,9 +1,22 @@
+/**
+ * Authentication Controller
+ * 
+ * This module provides controller functions for handling user authentication
+ * including registration, login, and retrieving the current user's information.
+ */
+
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 
-
-
- const register = async (req, res) => {
+/**
+ * Register a new user
+ * 
+ * @param {Object} req - Express request object containing username, email and password
+ * @param {Object} res - Express response object
+ * @returns {Object} New user object and JWT token
+ * @throws {400} If registration fails due to validation or duplicate user
+ */
+const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const user = new User({ username, email, password });
@@ -16,7 +29,15 @@ const User = require('../model/user');
   }
 };
 
- const login = async (req, res) => {
+/**
+ * Login an existing user
+ * 
+ * @param {Object} req - Express request object containing email and password
+ * @param {Object} res - Express response object
+ * @returns {Object} User object and JWT token
+ * @throws {400} If login fails due to invalid credentials
+ */
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -32,6 +53,15 @@ const User = require('../model/user');
   }
 };
 
+/**
+ * Get the currently authenticated user's information
+ * 
+ * @param {Object} req - Express request object containing authenticated user ID
+ * @param {Object} res - Express response object
+ * @returns {Object} User object without password
+ * @throws {404} If user not found
+ * @throws {500} If server error occurs
+ */
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select('-password');
@@ -45,5 +75,4 @@ const getCurrentUser = async (req, res) => {
 };
 
 
-
-module.exports = { register, login ,getCurrentUser};
+module.exports = { register, login, getCurrentUser };

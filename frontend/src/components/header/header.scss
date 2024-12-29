@@ -1,0 +1,74 @@
+.header-container {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: end;
+    padding-top: 20px;
+    position: absolute;
+
+    .avatar {
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 50px;
+        background: #262626;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .dropdown {
+        position: absolute;
+        // top: calc(100% + 8px);
+        top: 70px;
+        right: 10px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 200px;
+        overflow: hidden;
+        animation: slideDown 0.2s ease;
+        z-index: 1000;
+
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+
+            &.username {
+                font-weight: 500;
+                color: #262626;
+            }
+
+            &.logout {
+                color: #ed4956;
+                font-weight: 500;
+
+                &:hover {
+                    background: #fafafa;
+                }
+            }
+        }
+
+        .separator {
+            height: 1px;
+            background: #dbdbdb;
+            margin: 4px 0;
+        }
+    }
+}
+
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

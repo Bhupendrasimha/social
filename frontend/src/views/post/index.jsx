@@ -1,6 +1,12 @@
-/* eslint-disable react/prop-types */
+/**
+ * Post and PostList Components
+ * 
+ * This file contains two main components:
+ * 1. Post - Renders individual post with likes, comments and actions
+ * 2. PostList - Renders a list of posts with infinite scroll and new post creation
+ */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   useDeletePostMutation,
   useLikePostMutation,
@@ -13,25 +19,37 @@ import "./post.scss";
 import IntersectionObserverComponent from "../../components/intersectionObserver";
 import { Heart, MessageCircle, Trash2 } from "lucide-react";
 import PostSkeleton from "../../components/skelton";
+import Header from "../../components/header";
 
+/**
+ * Post Component - Renders an individual post with all its interactions
+ * @param {Object} props - Component props
+ * @param {Object} props.post - Post data including content, likes, comments
+ * @param {Object} props.user - Current user data
+ * @returns {JSX.Element} Individual post component
+ */
 const Post = ({ post, user }) => {
   const [showComments, setShowComments] = useState(false);
-
   const [commentText, setCommentText] = useState("");
 
   const [likePost] = useLikePostMutation();
   const [addComment] = useAddCommentMutation();
   const [deletePost] = useDeletePostMutation();
 
+  /**
+   * Handles liking/unliking a post
+   */
   const handleLike = async () => {
     try {
-      // post.likes.push(user._id)
       await likePost(post._id);
     } catch (err) {
       console.error("Failed to like post:", err);
     }
   };
 
+  /**
+   * Handles post deletion
+   */
   const handleDelete = async () => {
     try {
       await deletePost(post._id);
@@ -40,6 +58,10 @@ const Post = ({ post, user }) => {
     }
   };
 
+  /**
+   * Handles adding a new comment to the post
+   * @param {Event} e - Form submit event
+   */
   const handleComment = async (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
@@ -53,18 +75,13 @@ const Post = ({ post, user }) => {
         },
       }).unwrap();
 
-      // Reset form and states
       setCommentText("");
-
       setShowComments(true);
     } catch (err) {
       console.error("Failed to add comment:", err);
     }
   };
 
-  // const getUserInitial = (username) => {
-  //   return username ? username[0].toUpperCase() : "?";
-  // };
   const isLiked = post.likes.find((id) => id === user._id);
 
   return (
@@ -134,72 +151,83 @@ const Post = ({ post, user }) => {
     </div>
   );
 };
-// PostList.jsx
+
+/**
+ * PostList Component - Renders a list of posts with infinite scroll
+ * Includes functionality to create new posts
+ * @returns {JSX.Element} Post list component
+ */
 const PostList = () => {
   const [page, setPage] = useState(1);
-  const [addPost, { isLoading:isPosting }] = useAddPostMutation();
+  const [addPost, { isLoading: isPosting }] = useAddPostMutation();
   const { data: posts, isLoading, isError } = useGetPostsQuery(page);
   const { user } = useSelector((state) => state.auth);
-const [postText,setPostText]=useState("")
-  // Remove allPosts state and isLoadingMore since RTK Query handles caching
+  const [postText, setPostText] = useState("");
 
+  /**
+   * Handles loading more posts when scrolling
+   */
   const loadMore = useCallback(() => {
     if (!isLoading && posts?.pagination?.hasNextPage) {
       setPage((prev) => prev + 1);
     }
   }, [isLoading, posts?.pagination?.hasNextPage]);
 
+  /**
+   * Handles creating a new post
+   * @param {Event} e - Form submit event
+   */
+  const handlePost = async (e) => {
+    e.preventDefault();
+    if (!postText.trim()) return;
 
-
-const handlePost=async(e)=>{
-  e.preventDefault();
-  if (!postText.trim()) return;
-
-  try {
-    await addPost( {
+    try {
+      await addPost({
         content: postText,
         user: user?._id,
-      },
-    ).unwrap();
+      }).unwrap();
 
-    // Reset form and states
-    setPostText("");
-
-    
-  } catch (err) {
-    console.error("Failed to add comment:", err);
-  }
-}
+      setPostText("");
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+    }
+  };
 
   if (isError) return <div>Error loading posts</div>;
 
   return (
-    <>
+    
+    <div className="mainRoot">
+      <Header/>
       <div className="post">
         <form onSubmit={handlePost} className="post-container">
           <textarea
-          
-          value={postText}
-          onChange={(e) => setPostText(e.target.value)}
-          rows="5" cols="33" placeholder="What's in your Mind" />
-          <button type="submit" disabled={!postText.trim()}> {isPosting ? 'Posting...' : 'POST'}</button>
+            value={postText}
+            onChange={(e) => setPostText(e.target.value)}
+            rows="5"
+            cols="33"
+            placeholder="What's in your Mind"
+          />
+          <button type="submit" disabled={!postText.trim()}>
+            {isPosting ? 'Posting...' : 'POST'}
+          </button>
         </form>
       </div>
       <div className="postPage">
-        {isLoading 
-        ? <PostSkeleton/>
-        :
-        <IntersectionObserverComponent
-          next={loadMore}
-          hasMore={posts?.pagination?.hasNextPage}
-        >
-          {posts?.posts?.map((post) => (
-            <Post key={post._id} post={post} user={user} />
-          ))}
-        </IntersectionObserverComponent>
-}
+        {isLoading ? (
+          <PostSkeleton />
+        ) : (
+          <IntersectionObserverComponent
+            next={loadMore}
+            hasMore={posts?.pagination?.hasNextPage}
+          >
+            {posts?.posts?.map((post) => (
+              <Post key={post._id} post={post} user={user} />
+            ))}
+          </IntersectionObserverComponent>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

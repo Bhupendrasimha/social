@@ -64,8 +64,8 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       const response = await loginCall(data);
-
-      if (!response.data) {
+console.log(response)
+      if (response.error) {
         throw new Error("Login Failed || Invalid Credentials");
       }
 
@@ -91,6 +91,7 @@ const Login = () => {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Welcome</h2>
+        {errors.root && <div className="auth-error">{errors.root.message}</div>}
         <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
           <div className="form-group">
             <label htmlFor="email" className="form-label">

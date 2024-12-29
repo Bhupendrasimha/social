@@ -1,8 +1,19 @@
+/**
+ * PostSkeleton Component
+ * 
+ * A loading placeholder component that displays skeleton UI elements while post content is being fetched.
+ * Renders multiple skeleton post cards with animated loading effects for various post elements
+ * like avatar, username, content, actions, likes and comment box.
+ */
+
 import './skelton.scss'
 
+/**
+ * PostSkeleton renders skeleton loading UI for posts
+ * @returns {JSX.Element} Skeleton loading UI component with multiple post placeholders
+ */
 const PostSkeleton = () => {
     return (<div className='skelton'>
-
         {[1, 2, 3].map((i) => (
       <div className="skeleton-post" key={i}>
         <div className="skeleton-header">
@@ -26,4 +37,5 @@ const PostSkeleton = () => {
            </div>
     );
   };
-  export default PostSkeleton
+
+export default PostSkeleton;

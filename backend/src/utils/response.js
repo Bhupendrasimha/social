@@ -18,7 +18,7 @@ const createResponse = ({
     return res.status(statusCode).json(responseBody);
   };
   
-  // Add commonly used response types
+
   const successResponse = (res, data, message = 'Success', statusCode = 200) => {
     return createResponse({
       res,

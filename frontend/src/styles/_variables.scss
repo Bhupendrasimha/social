@@ -1,7 +1,13 @@
-$primary-color: #1890ff;
-$error-color: #ff4d4f;
-$text-color: #333;
-$border-color: #d9d9d9;
-$white: #fff;
-$gradient-start: #667eea;
-$gradient-end: #764ba2;
+// Color Variables
+// Main brand colors
+$primary-color: #1890ff;  // Primary blue used for buttons, links and highlights
+$error-color: #ff4d4f;    // Error/danger red used for alerts and validation
+
+// Text and border colors
+$text-color: #333;        // Default text color
+$border-color: #d9d9d9;   // Border color for inputs, cards, etc
+$white: #fff;             // Pure white for backgrounds and text
+
+// Gradient colors
+$gradient-start: #667eea; // Starting color for gradients
+$gradient-end: #764ba2;   // Ending color for gradients

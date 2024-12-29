@@ -1,9 +1,20 @@
+/**
+ * API Slice Configuration
+ * 
+ * This file configures the Redux Toolkit Query API slice for handling all API interactions.
+ * It sets up the base configuration and defines endpoints for authentication, posts, likes, and comments.
+ */
+
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+/**
+ * Main API slice configuration using Redux Toolkit Query
+ */
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://backend-gamma-hazel.vercel.app/api",
+    // Add authorization header if token exists
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token;
       if (token) {
@@ -15,6 +26,10 @@ export const apiSlice = createApi({
   tagTypes: ["Post", "User"],
 
   endpoints: (builder) => ({
+    /**
+     * Login endpoint
+     * Authenticates user credentials
+     */
     login: builder.mutation({
       query: (body) => ({
         url: "/auth/login",
@@ -23,6 +38,10 @@ export const apiSlice = createApi({
       }),
     }),
 
+    /**
+     * Register endpoint
+     * Creates new user account
+     */
     register: builder.mutation({
       query: (body) => ({
         url: "/auth/register",
@@ -31,14 +50,19 @@ export const apiSlice = createApi({
       }),
     }),
 
+    /**
+     * Get Posts endpoint
+     * Fetches paginated posts with infinite scroll support
+     */
     getPosts: builder.query({
       query: (page) => `/posts?page=${page}`,
       providesTags: ["Post"],
+      // Serialize query args to enable proper caching
       serializeQueryArgs: ({ endpointName }) => {
         return endpointName;
       },
+      // Merge new items with existing cache for infinite scroll
       merge: (currentCache, newItems, { arg: currentPage }) => {
-        // Only merge if it's not page 1
         if (currentPage !== 1) {
           if (!currentCache) return newItems;
           return {
@@ -47,14 +71,18 @@ export const apiSlice = createApi({
             pagination: newItems.pagination,
           };
         }
-        // For page 1, return new items directly without merging
         return newItems;
       },
+      // Force refetch when page number changes
       forceRefetch({ currentArg, previousArg }) {
         return currentArg !== previousArg;
       },
     }),
 
+    /**
+     * Add Post endpoint
+     * Creates a new post and updates the cache
+     */
     addPost: builder.mutation({
       query: (post) => ({
         url: "/posts",
@@ -64,17 +92,19 @@ export const apiSlice = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-          // Clear the entire cache
+          // Reset API state and refetch posts after successful creation
           dispatch(apiSlice.util.resetApiState());
-          // Refetch page 1
           dispatch(apiSlice.endpoints.getPosts.initiate(1));
         } catch (error) {
           console.error("Failed to add post:", error);
         }
       },
-      // invalidatesTags: ['Post'],
     }),
 
+    /**
+     * Like Post endpoint
+     * Toggles like status on a post with optimistic updates
+     */
     likePost: builder.mutation({
       query: (id) => ({
         url: `/posts/${id}/like`,
@@ -82,8 +112,7 @@ export const apiSlice = createApi({
       }),
       async onQueryStarted(postId, { dispatch, queryFulfilled, getState }) {
         const userId = getState().auth.user._id;
-
-        // Get all getPosts cache entries
+        // Optimistically update the likes array
         const updates = dispatch(
           apiSlice.util.updateQueryData("getPosts", undefined, (draft) => {
             const post = draft.posts.find((p) => p._id === postId);
@@ -106,13 +135,17 @@ export const apiSlice = createApi({
       },
     }),
 
+    /**
+     * Delete Post endpoint
+     * Removes a post with optimistic updates
+     */
     deletePost: builder.mutation({
       query: (id) => ({
         url: `/posts/${id}`,
         method: "DELETE",
       }),
       async onQueryStarted(postId, { dispatch, queryFulfilled }) {
-        // Optimistically remove post from all cached pages
+        // Optimistically remove post from cache
         const updates = dispatch(
           apiSlice.util.updateQueryData("getPosts", undefined, (draft) => {
             draft.posts = draft.posts.filter((post) => post._id !== postId);
@@ -127,6 +160,10 @@ export const apiSlice = createApi({
       },
     }),
 
+    /**
+     * Add Comment endpoint
+     * Adds a comment to a post with optimistic updates
+     */
     addComment: builder.mutation({
       query: ({ postId, comment }) => ({
         url: `/posts/${postId}/comment`,
@@ -141,8 +178,7 @@ export const apiSlice = createApi({
         { dispatch, queryFulfilled, getState }
       ) {
         const user = getState().auth.user;
-
-        // Optimistically add comment to all cached pages
+        // Optimistically add comment to cache
         const updates = dispatch(
           apiSlice.util.updateQueryData("getPosts", undefined, (draft) => {
             const post = draft.posts.find((p) => p._id === postId);
@@ -168,6 +204,9 @@ export const apiSlice = createApi({
   }),
 });
 
+/**
+ * Export generated hooks for use in components
+ */
 export const {
   useLoginMutation,
   useRegisterMutation,

@@ -101,11 +101,11 @@ const Register = () => {
       };
 
       const response = await register(userData).unwrap();
-
+console.log(response,"response")
       // Store user credentials in Redux store
       dispatch(setCredentials({
-        user: response.data.user,
-        token: response.data.token,
+        user: response.user,
+        token: response.token,
       }));
 
       // Reset form and redirect to posts page on successful registration

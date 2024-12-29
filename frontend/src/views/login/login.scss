@@ -1,6 +1,6 @@
 @import '../../styles/_variables.scss';
 
-// Main Styles
+
 .auth-container {
 width: 100vw;
   min-height: 100vh;
@@ -51,6 +51,7 @@ width: 100vw;
     display: block;
     margin-bottom: 8px;
     color: $text-color;
+    text-align: left;
     font-size: 14px;
     font-weight: 500;
   }

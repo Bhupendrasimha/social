@@ -1,7 +1,21 @@
+/**
+ * Post Controller
+ * 
+ * This module provides controller functions for handling post-related operations
+ * including creating, reading, updating, deleting posts as well as liking and
+ * commenting functionality.
+ */
+
 const Post = require('../model/post');
 
-
-
+/**
+ * Create a new post
+ * 
+ * @param {Object} req - Express request object containing post content and authenticated user
+ * @param {Object} res - Express response object
+ * @returns {Object} Created post object
+ * @throws {400} If post creation fails
+ */
 const createPost = async (req, res) => {
     try {
       const post = new Post({
@@ -15,22 +29,28 @@ const createPost = async (req, res) => {
     }
   };
   
-// src/controllers/postController.js
+/**
+ * Get paginated posts with optional sorting
+ * 
+ * @param {Object} req - Express request object containing query parameters
+ * @param {Object} res - Express response object
+ * @returns {Object} Posts array and pagination metadata
+ * @throws {500} If posts retrieval fails
+ */
 const getPosts = async (req, res) => {
   try {
-    // Get pagination parameters from query string
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const sortBy = req.query.sortBy || 'createdAt';
     const order = req.query.order === 'asc' ? 1 : -1;
 
-    // Calculate skip value
     const skip = (page - 1) * limit;
 
-    // Get total count for pagination info
+   
     const totalPosts = await Post.countDocuments();
 
-    // Get paginated posts
+   
     const posts = await Post.find()
       .populate('user', 'username')
       .populate('comments.user', 'username')
@@ -38,7 +58,7 @@ const getPosts = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    // Calculate pagination info
+
     const totalPages = Math.ceil(totalPosts / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
@@ -60,8 +80,16 @@ const getPosts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-  
-  const updatePost = async (req, res) => {
+
+/**
+ * Update an existing post
+ * 
+ * @param {Object} req - Express request object containing post ID and new content
+ * @param {Object} res - Express response object
+ * @returns {Object} Updated post object
+ * @throws {400} If post not found or update fails
+ */
+const updatePost = async (req, res) => {
     try {
       const post = await Post.findOne({ _id: req.params.id, user: req.user.userId });
       if (!post) throw new Error('Post not found');
@@ -74,7 +102,15 @@ const getPosts = async (req, res) => {
     }
   };
   
-  const deletePost = async (req, res) => {
+/**
+ * Delete a post
+ * 
+ * @param {Object} req - Express request object containing post ID
+ * @param {Object} res - Express response object
+ * @returns {Object} Success message
+ * @throws {400} If post not found or deletion fails
+ */
+const deletePost = async (req, res) => {
     try {
       const post = await Post.findOneAndDelete({ _id: req.params.id, user: req.user.userId });
       if (!post) throw new Error('Post not found');
@@ -84,7 +120,15 @@ const getPosts = async (req, res) => {
     }
   };
   
-  const likePost = async (req, res) => {
+/**
+ * Toggle like status on a post
+ * 
+ * @param {Object} req - Express request object containing post ID
+ * @param {Object} res - Express response object
+ * @returns {Object} Updated post object
+ * @throws {400} If post not found or like operation fails
+ */
+const likePost = async (req, res) => {
     try {
       const post = await Post.findById(req.params.id);
       if (!post) throw new Error('Post not found');
@@ -103,7 +147,15 @@ const getPosts = async (req, res) => {
     }
   };
   
-  const commentOnPost = async (req, res) => {
+/**
+ * Add a comment to a post
+ * 
+ * @param {Object} req - Express request object containing post ID and comment content
+ * @param {Object} res - Express response object
+ * @returns {Object} Updated post object with new comment
+ * @throws {400} If post not found or comment addition fails
+ */
+const commentOnPost = async (req, res) => {
     try {
       const post = await Post.findById(req.params.id);
       if (!post) throw new Error('Post not found');
@@ -120,7 +172,6 @@ const getPosts = async (req, res) => {
     }
   };
   
-
   module.exports = {
     createPost,
     getPosts,
@@ -129,4 +180,3 @@ const getPosts = async (req, res) => {
     likePost,
     commentOnPost
   };
-  
